@@ -117,10 +117,32 @@ function uc_vat_number_cf_checkout_pane() {
   return $panes;
 }
 
+/**
+ * Test if the record already exist
+ *
+ * @param $order_id Order ID
+ * @param $vat_number VAT Number
+ * @param $cf Codice Fiscale
+ * @return number of record that satisfying the requirements
+ */
+function _uc_vat_number_cf_billing_extend_exist_($order_id, $vat_number, $cf){
+  $query = "
+    SELECT count(*) 
+    FROM {uc_billing_extend} 
+    WHERE order_id = %d 
+      AND vat_number = '%s' 
+      AND cf = '%s'
+  ";
+
+  return db_result(db_query($query, $order_id, $vat_number, $cf));
+}
+
 function uc_vat_number_cf_order($op, &$arg1, $arg2) {
   global $user;
   switch ($op) {
     case 'update':
+      // 
+
       // when the order is changing (the user begin a registered user), I update
       // the uid information on uc_billing_extend table
 //      echo $arg1->uid;
@@ -145,22 +167,25 @@ function uc_vat_number_cf_order($op, &$arg1, $arg2) {
       if (arg(4) == 'edit') {
       }
       else {
-        /*db_query("UPDATE {uc_billing_extend} SET vat_number = '%s', cf = '%s' "
-        ."WHERE uid = %d", $arg1->billing_vat_number, $arg1->billing_cf, $user_id);*/
-        db_query("UPDATE {uc_billing_extend} SET
-          vat_number = '%s',
-          cf = '%s',
-          order_id = %d"
-          ." WHERE order_id = %d 
-          AND vat_number = '%s' 
-          AND cf = '%s'", 
-        $data['billing_vat_number'], 
-        $data['billing_cf'], 
-        $arg1->order_id,
-        $arg1->order_id,
-        $data['billing_vat_number'],
-        $data['billing_cf']);
-        if (db_affected_rows() == 0) {
+        // If already exist:
+        if(_uc_vat_number_cf_billing_extend_exist_($arg1->order_id, $data['billing_vat_number'], $data['billing_cf'])){
+          /*db_query("UPDATE {uc_billing_extend} SET vat_number = '%s', cf = '%s' "
+          ."WHERE uid = %d", $arg1->billing_vat_number, $arg1->billing_cf, $user_id);*/
+          db_query("UPDATE {uc_billing_extend} SET
+            vat_number = '%s',
+            cf = '%s',
+            order_id = %d"
+            ." WHERE order_id = %d 
+            AND vat_number = '%s' 
+            AND cf = '%s'", 
+            $data['billing_vat_number'], 
+            $data['billing_cf'], 
+            $arg1->order_id,
+            $arg1->order_id,
+            $data['billing_vat_number'],
+            $data['billing_cf']);
+        }else{
+      #  if (db_affected_rows() == 0) {
           db_query("INSERT INTO {uc_billing_extend}
             (id, uid, order_id, vat_number, cf) "
             ." VALUES ('', %d, %d, '%s', '%s')",
