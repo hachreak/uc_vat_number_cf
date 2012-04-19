@@ -4,7 +4,7 @@
  */
 function uc_vat_number_cf_menu() {
   $items = array();
-	$items['admin/store/settings/uc_vat_number_cf'] = array(
+  $items['admin/store/settings/uc_vat_number_cf'] = array(
     'title' => 'P.IVA e Codice Fiscale',
     'description' => 'Impostazioni P.IVA e Codice Fiscale.',
     'page callback' => 'drupal_get_form',    
@@ -38,7 +38,7 @@ function uc_vat_number_cf_access($op, $node, $account) {
 function uc_vat_number_cf_form_alter(&$form, &$form_state, $form_id) {
   drupal_add_js(drupal_get_path('module', 'uc_vat_number_cf') .'/uc_vat_number_cf.js');
   global $user;
-	if ($form_id == 'uc_cart_checkout_form'){
+  if ($form_id == 'uc_cart_checkout_form'){
     $form['#validate'][] = 'uc_vat_number_cf_checkout_validate';
   }
   if ($form_id == 'uc_store_store_settings_form') {
@@ -67,33 +67,33 @@ function uc_vat_number_cf_form_alter(&$form, &$form_state, $form_id) {
   if($form_id == 'uc_cart_checkout_form') {
     $result = db_query("SELECT * FROM {uc_billing_extend} WHERE uid = %d AND uid != 0", $user->uid);
     if ($row = db_fetch_object($result)) {
-        $billing_vat_number = $row->vat_number;
-        $billing_cf = $row->cf;
+      $billing_vat_number = $row->vat_number;
+      $billing_cf = $row->cf;
     }
 
-  $form['panes']['billing']['billing_vat_number'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Partita IVA'),
-    '#description' => variable_get('uc_vat_number_cf_vatnumber_checkout_message', 'Partita IVA (obbligatoria se sei un\'azienda).'),
-    '#size' => 32,
-    '#maxlength' => 13,
-    '#weight' => 1,
-    '#required' => false,
-    '#default_value' => $billing_vat_number,
-  );
-  $form['panes']['billing']['billing_cf'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Codice fiscale'),
-    '#description' => variable_get('uc_vat_number_cf_cf_checkout_message', 'Codice Fiscale (obbligatorio se sei un\'azienda).'),
-    '#size' => 32,
-    '#maxlength' => 16,
-    '#weight' => 1,
-    #'#required' => false,
-    '#required' => (variable_get('uc_vat_number_cf_cf_mandatory', 0) == 1 ? true : false),
-    '#default_value' => $billing_cf,
+    $form['panes']['billing']['billing_vat_number'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Partita IVA'),
+      '#description' => variable_get('uc_vat_number_cf_vatnumber_checkout_message', 'Partita IVA (obbligatoria se sei un\'azienda).'),
+      '#size' => 32,
+      '#maxlength' => 13,
+      '#weight' => 1,
+      '#required' => false,
+      '#default_value' => $billing_vat_number,
+    );
+    $form['panes']['billing']['billing_cf'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Codice fiscale'),
+      '#description' => variable_get('uc_vat_number_cf_cf_checkout_message', 'Codice Fiscale (obbligatorio se sei un\'azienda).'),
+      '#size' => 32,
+      '#maxlength' => 16,
+      '#weight' => 1,
+      #'#required' => false,
+      '#required' => (variable_get('uc_vat_number_cf_cf_mandatory', 0) == 1 ? true : false),
+      '#default_value' => $billing_cf,
     );
   }
-	return;
+  return;
 }
 
 /**
@@ -162,12 +162,12 @@ function uc_vat_number_cf_order($op, &$arg1, $arg2) {
         $data['billing_cf']);
         if (db_affected_rows() == 0) {
           db_query("INSERT INTO {uc_billing_extend}
-                (id, uid, order_id, vat_number, cf) "
-                ." VALUES ('', %d, %d, '%s', '%s')",
-                $arg1->uid,
-                $arg1->order_id,
-                $data['billing_vat_number'],
-                $data['billing_cf']);
+            (id, uid, order_id, vat_number, cf) "
+            ." VALUES ('', %d, %d, '%s', '%s')",
+            $arg1->uid,
+            $arg1->order_id,
+            $data['billing_vat_number'],
+            $data['billing_cf']);
         }
       }
       break;
@@ -195,39 +195,41 @@ function uc_vat_number_cf_order_pane() {
     'desc' => t('La Partita Iva del Cliente.'),
     'class' => 'pos-left',
     'weight' => 2.1,
-		'show' => array('view', 'edit', 'customer'),
+    'show' => array('view', 'edit', 'customer'),
   );
-	$panes[] = array(
-	  'id' => 'billing',
-	  'callback' => 'uc_order_pane_admin_cf',
-	  'title' => t('Codice Fiscale'),
-	  'desc' => t('Il Codice Fiscale del Cliente.'),
-	  'class' => 'pos-left',
-	  'weight' => 2.2,
-		'show' => array('view', 'edit', 'customer'),
-	);
+  $panes[] = array(
+    'id' => 'billing',
+    'callback' => 'uc_order_pane_admin_cf',
+    'title' => t('Codice Fiscale'),
+    'desc' => t('Il Codice Fiscale del Cliente.'),
+    'class' => 'pos-left',
+    'weight' => 2.2,
+    'show' => array('view', 'edit', 'customer'),
+  );
   return $panes;
 }
 
 function uc_order_pane_cf($op, $arg1) {
   switch ($op) {
+
     case 'customer':
-	if (empty($arg1->billing_cf)) {
-    		$cf = t('Non specificato.');
-    	}
-    	else if (!empty($arg1->billing_cf)) {
-    		$cf = $arg1->billing_cf;
-    	}
-    	return t('!cf', array('!cf' => $cf));
-		case 'view':
-	if (empty($arg1->billing_cf)) {
-    		$cf = t('Non specificato.');
-    	}
-    	else if (!empty($arg1->billing_cf)) {
-    		$cf = $arg1->billing_cf;
-    	}
-    	return t('!cf', array('!cf' => $cf));
-		case 'edit-form':
+      if (empty($arg1->billing_cf)) {
+        $cf = t('Non specificato.');
+      }else if (!empty($arg1->billing_cf)) {
+        $cf = $arg1->billing_cf;
+      }
+      return t('!cf', array('!cf' => $cf));
+
+    case 'view':
+      if (empty($arg1->billing_cf)) {
+        $cf = t('Non specificato.');
+      }else if (!empty($arg1->billing_cf)) {
+        $cf = $arg1->billing_cf;
+      }
+      return t('!cf', array('!cf' => $cf));
+   
+    case 'edit-form':
+      break;
   }
 }
 
@@ -237,16 +239,19 @@ function uc_order_pane_cf($op, $arg1) {
 function uc_vat_number_cf_token_values($type, $object = NULL) {
   $values = array();  
   switch ($type) {
+
     case 'global':
-			$values['store-vat-number'] = variable_get('uc_store_vat_number', t('La P.IVA del negozio.'));
-			$values['store-cf'] = variable_get('uc_store_cf', t('Il Codice Fiscale del negozio.'));
-			break;
-    case 'order':
-			$order = $object;
-			$values['order-vat-number'] = $order->billing_vat_number;
-			$values['order-cf'] = $order->billing_cf;
-		break;
-	}
+      $values['store-vat-number'] = variable_get('uc_store_vat_number', t('La P.IVA del negozio.'));
+      $values['store-cf'] = variable_get('uc_store_cf', t('Il Codice Fiscale del negozio.'));
+      break;
+ 
+   case 'order':
+      $order = $object;
+      $values['order-vat-number'] = $order->billing_vat_number;
+      $values['order-cf'] = $order->billing_cf;
+      break;
+  
+  }
   return $values;
 }
 
@@ -256,11 +261,11 @@ function uc_vat_number_cf_token_values($type, $object = NULL) {
 function uc_vat_number_cf_token_list($type = 'all') {
   $tokens = array();
   $tokens['global']['store-vat-number'] = t('La P.IVA del negozio.');
-	$tokens['global']['store-cf'] = t('Il Codice Fiscale del negozio.');
-	if ($type == 'order' || $type == 'ubercart' || $type == 'all') {
-		$tokens['order']['order-vat-number'] = t('La P.IVA del cliente.');
-		$tokens['order']['order-cf'] = t('Il Codice Fiscale del cliente.');
-	}
+  $tokens['global']['store-cf'] = t('Il Codice Fiscale del negozio.');
+  if ($type == 'order' || $type == 'ubercart' || $type == 'all') {
+    $tokens['order']['order-vat-number'] = t('La P.IVA del cliente.');
+    $tokens['order']['order-cf'] = t('Il Codice Fiscale del cliente.');
+  }
   return $tokens;
 }
 
@@ -296,29 +301,29 @@ function uc_vat_number_cf_checkout_validate($form, &$form_state) {
 	Romania => 642
 	*/
 
-$european_countries = array(276, 40, 56, 208, 724, 246, 250, 300, 372, 380, 442, 528, 620, 826, 752, 196, 233, 348, 428, 440, 470, 616, 203, 703, 705, 100, 642);
+  $european_countries = array(276, 40, 56, 208, 724, 246, 250, 300, 372, 380, 442, 528, 620, 826, 752, 196, 233, 348, 428, 440, 470, 616, 203, 703, 705, 100, 642);
   //if (!in_array($form_state['values']['panes']['delivery']['delivery_country'], $european_countries)) {
   //  form_set_error('', t('Export fuori dall\'UE.'));
   //}
   // contry store -> variable_get('uc_store_country', 380)
   //if ((in_array($form_state['values']['panes']['billing']['billing_country'], $european_countries)) && ($form_state['values']['panes']['billing']['billing_company'] != '')) {
   if (($form_state['values']['panes']['billing']['billing_company'] != '') && ($form_state['values']['panes']['billing']['billing_country'] == 380)) {
-	  if ($form_state['values']['panes']['billing']['billing_vat_number'] == '') {
+    if ($form_state['values']['panes']['billing']['billing_vat_number'] == '') {
       // azienda italiana, P.IVA obbligatoria
       form_set_error('panes][billing][billing_vat_number', t('P.IVA obbligatoria.'));
     }
-		if ($form_state['values']['panes']['billing']['billing_cf'] == '') {
+    if ($form_state['values']['panes']['billing']['billing_cf'] == '') {
       // azienda italiana, Codice Fiscale obbligatorio
       form_set_error('panes][billing][billing_cf', t('Codice Fiscale obbligatorio.'));
     }
   }
   if ((in_array($form_state['values']['panes']['billing']['billing_country'], $european_countries)) && ($form_state['values']['panes']['billing']['billing_company'] != '')) {
     if ($form_state['values']['panes']['billing']['billing_vat_number'] == '') {
-	    // azienda italiana, P.IVA obbligatoria
-	    form_set_error('panes][billing][billing_vat_number', t('P.IVA obbligatoria.'));
-	  }
+      // azienda italiana, P.IVA obbligatoria
+      form_set_error('panes][billing][billing_vat_number', t('P.IVA obbligatoria.'));
+    }
   }
-	if ((variable_get('uc_vat_number_cf_cf_mandatory', 0) == 1) && ($form_state['values']['panes']['billing']['billing_cf'] == '')) {
+  if ((variable_get('uc_vat_number_cf_cf_mandatory', 0) == 1) && ($form_state['values']['panes']['billing']['billing_cf'] == '')) {
     form_set_error('panes][billing][billing_cf', t('Codice Fiscale obbligatorio.'));
   }
 }
@@ -363,103 +368,103 @@ function uc_checkout_pane_cf($op, &$arg1, $arg2) {
 function uc_order_pane_admin_vat_number($op, $arg1) {
   switch ($op) {
     case 'customer':
-     	if (empty($arg1->billing_vat_number)) {
-    		$vat_number = t('Non specificata.');
-    	}
-    	else if (!empty($arg1->billing_vat_number)) {
-    		$vat_number = $arg1->billing_vat_number;
-    	}
-			return t('!vat_number', array('!vat_number' => $vat_number));     
+      if (empty($arg1->billing_vat_number)) {
+        $vat_number = t('Non specificata.');
+      }else if (!empty($arg1->billing_vat_number)) {
+        $vat_number = $arg1->billing_vat_number;
+      }
+      return t('!vat_number', array('!vat_number' => $vat_number));     
+
     case 'view':
-    	if (empty($arg1->billing_vat_number)) {
-    		$vat_number = t('Non specificata.');
-    		}
-    	else if (!empty($arg1->billing_vat_number)) {
-    		$vat_number = $arg1->billing_vat_number;
-    	}
-			return t('!vat_number', array('!vat_number' => $vat_number));
+      if (empty($arg1->billing_vat_number)) {
+        $vat_number = t('Non specificata.');
+      }else if (!empty($arg1->billing_vat_number)) {
+        $vat_number = $arg1->billing_vat_number;
+      }
+      return t('!vat_number', array('!vat_number' => $vat_number));
+    
     case 'edit-form':
       $form['admin_vat_number_field'] = array(
         '#type' => 'textfield',
-				'#size' => 32,
-				'#default_value' => $arg1->billing_vat_number,
+        '#size' => 32,
+        '#default_value' => $arg1->billing_vat_number,
       );
       return $form;
-		case 'edit-theme':
-			$output = drupal_render($arg1['admin_vat_number_field']);
+
+    case 'edit-theme':
+      $output = drupal_render($arg1['admin_vat_number_field']);
       return $output;
-		case 'edit-process':
+
+    case 'edit-process':
       if (($arg1['admin_vat_number_field'] == '') && ($arg1['admin_cf_field'] == '')) {
         db_query("DELETE FROM {uc_billing_extend} WHERE uid = %d", $arg1['uid']);
-      }
-      else {
+      }else{
         $num_rows = db_result(db_query('SELECT COUNT(id) FROM {uc_billing_extend} WHERE uid = %d', $arg1['uid']));
-		    if ($num_rows) {
+        if ($num_rows) {
           db_query("UPDATE {uc_billing_extend} SET vat_number = '%s' WHERE uid = %d", $arg1['admin_vat_number_field'], $arg1['uid']);          
-        }
-        else {
-			    db_query("INSERT INTO {uc_billing_extend}
-			            (id, uid, order_id, vat_number, cf) "
-			            ." VALUES ('', %d, %d, '%s', '%s')",
-			            $arg1['uid'],
-			            $arg1['order_id'],
-			            $arg1['admin_vat_number_field'],
-			            $arg1['admin_cf_field']);          
+        }else{
+	  db_query("INSERT INTO {uc_billing_extend}
+	    (id, uid, order_id, vat_number, cf) "
+	    ." VALUES ('', %d, %d, '%s', '%s')",
+            $arg1['uid'],
+            $arg1['order_id'],
+            $arg1['admin_vat_number_field'],
+            $arg1['admin_cf_field']);          
         }
       }
-			return;
-	}
+      return;
+  }
 }
 
 function uc_order_pane_admin_cf($op, $arg1) {
   switch ($op) {
     case 'customer':
-     	if (empty($arg1->billing_cf)) {
-    		$cf = t('Non specificato.');
-    	}
-    	else if (!empty($arg1->billing_cf)) {
-    		$cf = $arg1->billing_cf;
-    	}
-			return t('!cf', array('!cf' => $cf));     
+      if (empty($arg1->billing_cf)) {
+        $cf = t('Non specificato.');
+      }else if (!empty($arg1->billing_cf)) {
+        $cf = $arg1->billing_cf;
+      }
+      return t('!cf', array('!cf' => $cf));     
+
     case 'view':
-    	if (empty($arg1->billing_cf)) {
-    		$cf = t('Non specificato.');
-    		}
-    		else if (!empty($arg1->billing_cf)) {
-    		$cf = $arg1->billing_cf;
-    	}
-			return t('!cf', array('!cf' => $cf));
+      if (empty($arg1->billing_cf)) {
+        $cf = t('Non specificato.');
+      }else if (!empty($arg1->billing_cf)) {
+        $cf = $arg1->billing_cf;
+      }
+      return t('!cf', array('!cf' => $cf));
+
     case 'edit-form':
-			$form['admin_cf_field'] = array(
+      $form['admin_cf_field'] = array(
         '#type' => 'textfield',
-				'#size' => 32,
-				'#default_value' => $arg1->billing_cf,
+        '#size' => 32,
+        '#default_value' => $arg1->billing_cf,
       );
       return $form;
-		case 'edit-theme':
-			$output = drupal_render($arg1['admin_cf_field']);
+
+    case 'edit-theme':
+      $output = drupal_render($arg1['admin_cf_field']);
       return $output;
-		case 'edit-process':
-    if (($arg1['admin_vat_number_field'] == '') && ($arg1['admin_cf_field'] == '')) {
-      db_query("DELETE FROM {uc_billing_extend} WHERE uid = %d", $arg1['uid']);
-    }
-    else {
-      $num_rows = db_result(db_query('SELECT COUNT(id) FROM {uc_billing_extend} WHERE uid = %d', $arg1['uid']));
-	    if ($num_rows) {
-        db_query("UPDATE {uc_billing_extend} SET cf = '%s' WHERE uid = %d", $arg1['admin_cf_field'], $arg1['uid']);          
+
+    case 'edit-process':
+      if (($arg1['admin_vat_number_field'] == '') && ($arg1['admin_cf_field'] == '')) {
+        db_query("DELETE FROM {uc_billing_extend} WHERE uid = %d", $arg1['uid']);
+      }else{
+        $num_rows = db_result(db_query('SELECT COUNT(id) FROM {uc_billing_extend} WHERE uid = %d', $arg1['uid']));
+        if ($num_rows) {
+          db_query("UPDATE {uc_billing_extend} SET cf = '%s' WHERE uid = %d", $arg1['admin_cf_field'], $arg1['uid']);          
+        }else{
+          db_query("INSERT INTO {uc_billing_extend}
+            (id, uid, order_id, vat_number, cf) "
+            ." VALUES ('', %d, %d, '%s', '%s')",
+            $arg1['uid'],
+            $arg1['order_id'],
+            $arg1['admin_vat_number_field'],
+            $arg1['admin_cf_field']);          
+        }
       }
-      else {
-		    db_query("INSERT INTO {uc_billing_extend}
-		            (id, uid, order_id, vat_number, cf) "
-		            ." VALUES ('', %d, %d, '%s', '%s')",
-		            $arg1['uid'],
-		            $arg1['order_id'],
-		            $arg1['admin_vat_number_field'],
-		            $arg1['admin_cf_field']);          
-      }
-    }
-		return;
-	}
+      return;
+  }
 }
 
 function uc_vat_number_cf_settings_form() {
@@ -477,7 +482,7 @@ function uc_vat_number_cf_settings_form() {
     '#rows' => 10,
   );
 
-	$form['uc_vat_number_cf_cf_mandatory'] = array(
+  $form['uc_vat_number_cf_cf_mandatory'] = array(
     '#type' => 'checkbox',
     '#title' => t('Codice fiscale obbligatorio anche per privati'),
     '#default_value' => variable_get('uc_vat_number_cf_cf_mandatory', 0),
