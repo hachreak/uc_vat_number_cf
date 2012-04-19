@@ -1,0 +1,8 @@
+; $Id$
+name = Partita Iva e Codice Fiscale
+description = Permette l'inserimento del numero di Partita Iva e del Codice Fiscale. Modulo sviluppato da <a href="http://www.criterianet.net">Criteria</a>.
+dependencies[] = uc_cart
+dependencies[] = uc_product
+dependencies[] = token
+package = "Ubercart - extra"
+core = 6.x

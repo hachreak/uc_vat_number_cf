@@ -1,0 +1,66 @@
+<?php
+// $Id$
+
+/**
+* Implementation of hook_install().
+*/
+function uc_vat_number_cf_install() {
+  // Use schema API to create database table.
+  drupal_install_schema('uc_vat_number_cf');
+}
+
+/**
+* Implementation of hook_uninstall().
+*/
+function uc_vat_number_cf_uninstall() {
+  // Use schema API to delete database table.
+  drupal_uninstall_schema('uc_vat_number_cf');
+  // Delete our module's variable from the variables table.
+  //variable_delete('annotate_node_types');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function uc_vat_number_cf_schema() {
+  $schema['uc_billing_extend'] = array(
+    'description' => 'The base table for Vat Number and Fiscal Code.',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+        'description' => t('Primary key.'),
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE, // Defaults to FALSE.
+        'description' => t('The user ID.'),
+      ),
+      'order_id' => array(
+        'type' => 'int',        
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('The order ID.'),
+      ),
+      'vat_number' => array(
+        'type' => 'text',
+        'length' => 13,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('Always state the purpose of your field.'),
+      ),
+      'cf' => array(
+        'type' => 'text',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('Always state the purpose of your field.'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
