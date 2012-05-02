@@ -1,4 +1,9 @@
-@modified by hachreak "Leonardo Rossi"
+##################################################################
+#
+# @modified by hachreak "Leonardo Rossi"
+# @website http://hachreak.org
+#
+##################################################################
 
 This module is based on and inspired by:
 http://www.ubercart.org/forum/support/6856/how_extend_billing_address
