@@ -2,6 +2,7 @@
 #
 # @modified by hachreak "Leonardo Rossi"
 # @website http://hachreak.org
+# @email git@hachreak.org
 #
 ##################################################################
 
