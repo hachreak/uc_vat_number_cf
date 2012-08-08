@@ -125,16 +125,19 @@ function uc_vat_number_cf_checkout_pane() {
  * @param $cf Codice Fiscale
  * @return number of record that satisfying the requirements
  */
-function _uc_vat_number_cf_billing_extend_exist_($order_id, $vat_number, $cf){
+function _uc_vat_number_cf_billing_extend_exist_($order_id/*, $vat_number, $cf*/){
   $query = "
     SELECT count(*) 
     FROM {uc_billing_extend} 
     WHERE order_id = %d 
-      AND vat_number = '%s' 
-      AND cf = '%s'
   ";
+/*      AND vat_number = '%s' 
+      AND cf = '%s'
+  ";*/
 
-  return db_result(db_query($query, $order_id, $vat_number, $cf));
+  $result = db_result(db_query($query, $order_id/*, $vat_number, $cf*/));
+
+  return ($result > 0 ? true : false);
 }
 
 function uc_vat_number_cf_order($op, &$arg1, $arg2) {
@@ -168,7 +171,7 @@ function uc_vat_number_cf_order($op, &$arg1, $arg2) {
       }
       else {
         // If already exist:
-        if(_uc_vat_number_cf_billing_extend_exist_($arg1->order_id, $data['billing_vat_number'], $data['billing_cf'])){
+        if(_uc_vat_number_cf_billing_extend_exist_($arg1->order_id /*, $data['billing_vat_number'], $data['billing_cf']*/)){
           /*db_query("UPDATE {uc_billing_extend} SET vat_number = '%s', cf = '%s' "
           ."WHERE uid = %d", $arg1->billing_vat_number, $arg1->billing_cf, $user_id);*/
           db_query("UPDATE {uc_billing_extend} SET

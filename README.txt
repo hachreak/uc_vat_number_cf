@@ -6,6 +6,7 @@
 #
 ##################################################################
 
+
 This module is based on and inspired by:
 http://www.ubercart.org/forum/support/6856/how_extend_billing_address
 It is also inspired by the VAT number module (http://www.ubercart.org/contrib/797).
